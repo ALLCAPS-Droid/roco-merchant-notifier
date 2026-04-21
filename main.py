@@ -74,16 +74,14 @@ def process_data_for_template(data):
         s_time = item.get("start_time")
         e_time = item.get("end_time")
         
-        # 核心过滤：只保留当前时间在起止时间内的商品（避免上一轮商品残留）
         if s_time and e_time:
             if int(s_time) <= now_ms < int(e_time):
                 active_products.append({
                     "name": item.get("name", "未知"),
-                    "image": item.get("icon_url", ""), # 直接使用网络图片
+                    "image": item.get("icon_url", ""),
                     "time_label": f"{format_timestamp(s_time)} - {format_timestamp(e_time)}"
                 })
         else:
-            # 兜底：如果接口没给时间，默认全天显示
             active_products.append({
                 "name": item.get("name", "未知"),
                 "image": item.get("icon_url", ""),
@@ -124,7 +122,7 @@ async def render_to_image(processed_data):
             await page.set_viewport_size({"width": 750, "height": 1200})
             await page.goto(f"file://{temp_html_path}")
             
-            # --- 核心修复 3：强制让浏览器耐心等待所有字体文件下载完成 ---
+            # --- 强制等待字体加载 ---
             await page.evaluate("document.fonts.ready")
             await page.wait_for_load_state("networkidle")
             
@@ -139,9 +137,6 @@ async def render_to_image(processed_data):
         print(f"❌ 渲染图片失败: {e}")
         return None
     finally:
-        if os.path.exists(temp_html_path): os.remove(temp_html_path)
-    finally:
-        # 清理临时文件
         if os.path.exists(temp_html_path): os.remove(temp_html_path)
 
 async def upload_to_imgbb(image_path):
@@ -165,7 +160,6 @@ async def upload_to_imgbb(image_path):
 
 def push_all(title, body, markdown, image_url):
     """执行双通道推送"""
-    # NotifyMe
     if NOTIFYME_UUID:
         payload = {
             "data": {
@@ -179,23 +173,19 @@ def push_all(title, body, markdown, image_url):
         try:
             requests.post(NOTIFYME_SERVER, json=payload, timeout=10)
             print("✅ NotifyMe 推送已发送")
-        except:
-            pass
+        except: pass
     
-    # Bark
     if BARK_KEY:
         try:
             requests.post(f"https://api.day.app/{BARK_KEY}", data={
                 "title": title, "body": body, "group": "洛克王国", "image": image_url, "isArchive": 1
             }, timeout=10)
             print("✅ Bark 推送已发送")
-        except:
-            pass
+        except: pass
 
 # ================= 5. 主入口 =================
 
 async def main():
-    # 1. 获取数据
     try:
         resp = requests.get(GAME_API_URL, headers={"X-API-Key": ROCOM_API_KEY}, timeout=30)
         resp.raise_for_status()
@@ -208,18 +198,13 @@ async def main():
         push_all("⚠️ 监控异常", err or "无法获取数据", "无法获取数据", None)
         return
 
-    # 2. 处理数据
     processed = process_data_for_template(raw_data)
-    
-    # 提取商品名称用于推送通知正文文字
     item_names = [p["name"] for p in processed["products"]]
     push_body = f"当前售卖: {'、'.join(item_names)}" if item_names else "当前暂无商品"
     
-    # 3. 渲染出图
     local_img = await render_to_image(processed)
     img_url = await upload_to_imgbb(local_img)
     
-    # 4. 推送
     push_all("📢 远行商人已刷新", push_body, "### 🛒 商人刷新详情", img_url)
 
 if __name__ == "__main__":

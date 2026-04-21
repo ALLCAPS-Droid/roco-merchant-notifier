@@ -110,7 +110,6 @@ async def render_to_image(processed_data):
     temp_html_path = os.path.join(ASSETS_DIR, TEMP_RENDER_FILE)
     
     try:
-        # 1. Jinja2 渲染数据到 HTML
         env = Environment(loader=FileSystemLoader(ASSETS_DIR))
         template = env.get_template(HTML_TEMPLATE_FILE)
         rendered_html = template.render(processed_data)
@@ -122,14 +121,13 @@ async def render_to_image(processed_data):
             browser = await p.chromium.launch()
             page = await browser.new_page()
             
-            # 2. 设置手机竖屏视口
             await page.set_viewport_size({"width": 750, "height": 1200})
             await page.goto(f"file://{temp_html_path}")
             
-            # 等待网络空闲（确保云端字体、背景图、Logo加载完成）
+            # --- 核心修复 3：强制让浏览器耐心等待所有字体文件下载完成 ---
+            await page.evaluate("document.fonts.ready")
             await page.wait_for_load_state("networkidle")
             
-            # 3. 核心：精准切割截图，消除多余留白
             data_region = page.locator('.roco-merchant')
             await data_region.screenshot(path=screenshot_file, type="jpeg", quality=90)
             
@@ -140,6 +138,8 @@ async def render_to_image(processed_data):
     except Exception as e:
         print(f"❌ 渲染图片失败: {e}")
         return None
+    finally:
+        if os.path.exists(temp_html_path): os.remove(temp_html_path)
     finally:
         # 清理临时文件
         if os.path.exists(temp_html_path): os.remove(temp_html_path)

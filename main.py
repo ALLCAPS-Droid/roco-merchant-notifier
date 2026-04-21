@@ -1,17 +1,26 @@
 import requests
 
-# 洛克王国公开 API 地址
+# 洛克王国数据网关 (熵增项目组端点)
 API_URL = "https://wegame.shallow.ink/api/v1/games/rocom/merchant/info?refresh=true"
 
-# ！！！将这里替换成你 NotifyMe 设备的真实 UUID ！！！
+# ！！！1. 在此填入你从项目方申请到的 API Key ！！！
+ROCOM_API_KEY = "sk-ff14f964051a5c966564e29b5bd3a768"
+
+# ！！！2. 在此填入你 NotifyMe 设备的真实 UUID ！！！
 NOTIFYME_UUID = "jk9JwjyvKZ8FL75eei4c3Z"
 
 # 新版 NotifyMe 官方服务端地址
-NOTIFYME_SERVER_URL = "https://notifyme-server.wzn556.top" 
+NOTIFYME_SERVER_URL = "https://notifyme-server.wzn556.top/api/send"
 
 def get_merchant_data():
     try:
-        response = requests.get(API_URL, timeout=10)
+        # 这里的 headers 就是出示通行证的关键！
+        headers = {
+            "X-API-Key": ROCOM_API_KEY
+        }
+        
+        # 发送请求时带上 headers
+        response = requests.get(API_URL, headers=headers, timeout=10)
         response.raise_for_status()
         res_json = response.json()
         
@@ -40,7 +49,6 @@ def get_merchant_data():
         for item in props + pets:
             name = item.get("name", "未知商品")
             icon_url = item.get("icon_url", "")
-            # Markdown 图片语法，配合加粗字体
             content_md += f"![{name}]({icon_url}) **{name}**\n\n"
             
         return body_text, content_md
@@ -49,41 +57,39 @@ def get_merchant_data():
         return None, f"获取商人数据失败: {e}"
 
 def push_via_notifyme(body_text, markdown_text):
-    # 根据获取结果判断标题和内容
     if body_text is None:
         title = "⚠️ 远行商人监控异常"
-        body = markdown_text # 此时 markdown_text 里装的是报错信息
+        body = markdown_text 
         md = markdown_text
     else:
         title = "📢 洛克王国：远行商人已刷新"
         body = body_text
         md = markdown_text
 
-    # 严格按照新版开发文档构建 JSON 结构
+    # NotifyMe 请求体配置
     payload = {
         "data": {
             "uuid": NOTIFYME_UUID,
-            "ttl": 86400,            # 离线保存 1 天
-            "priority": "high",      # 高优先级，穿透 Doze 模式
+            "ttl": 86400,
+            "priority": "high",
             "data": {
                 "title": title,
-                "body": body,        # 通知栏显示的纯文本摘要
-                "markdown": md,      # App 内显示的富文本图文
-                "group": "洛克王国",  # 消息归类分组
-                "bigText": True,     # 允许在通知栏展开显示多行
-                "record": 1          # 记录到 App 的历史消息中
+                "body": body,        
+                "markdown": md,      
+                "group": "洛克王国",  
+                "bigText": True,     
+                "record": 1          
             }
         }
     }
     
+    # NotifyMe 需要的 Content-Type 请求头
     headers = {
         "Content-Type": "application/json"
     }
     
     try:
-        # 注意：如果单纯发到域名根目录报错（404），可尝试把 URL 改为 https://notifyme-server.wzn556.top/api/send
         res = requests.post(NOTIFYME_SERVER_URL, json=payload, headers=headers)
-        
         if res.status_code == 200:
             print("NotifyMe 新版 API 推送成功！")
         else:

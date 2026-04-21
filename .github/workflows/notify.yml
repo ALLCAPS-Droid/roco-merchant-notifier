@@ -1,0 +1,26 @@
+name: Roco Merchant Notifier
+
+on:
+  schedule:
+    # 使用 UTC 时间。北京时间 08, 12, 16, 20 点减去 8 小时，即 UTC 的 00, 04, 08, 12 点。
+    # 设定在刷新后的第 2 分钟执行，确保服务器数据已更新。
+    - cron: '2 0,4,8,12 * * *'
+  workflow_dispatch: # 允许手动点击运行，方便测试
+
+jobs:
+  run-notifier:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: pip install requests
+
+      - name: Run script
+        run: python main.py

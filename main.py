@@ -119,7 +119,7 @@ async def render_to_image(processed_data):
             browser = await p.chromium.launch()
             page = await browser.new_page()
             
-            await page.set_viewport_size({"width": 750, "height": 1200})
+            await page.set_viewport_size({"width": 900, "height": 1200})
             await page.goto(f"file://{temp_html_path}")
             
             # --- 强制等待字体加载 ---

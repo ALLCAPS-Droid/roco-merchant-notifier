@@ -93,7 +93,12 @@ def process_data_for_template(data):
         "subtitle": activity.get("start_date", "每日 08:00 / 12:00 / 16:00 / 20:00 刷新"),
         "product_count": len(active_products),
         "round_info": round_info,
-        "products": active_products
+        "products": active_products,
+        
+        # --- 为了完美适配最初的原版 index.html 增加的变量 ---
+        "_res_path": "",  # 留空，让 HTML 里的相对路径生效读取本地 ttf 和 img
+        "background": "img/bg.C8CUoi7I.jpg", # 激活原版的背景图
+        "titleIcon": True # 激活原版的 Logo 显示
     }
 
 # ================= 3. 图像渲染与上传 =================
@@ -119,14 +124,16 @@ async def render_to_image(processed_data):
             browser = await p.chromium.launch()
             page = await browser.new_page()
             
+            # --- 避开手机端错乱排版，恢复完美宽度 ---
             await page.set_viewport_size({"width": 900, "height": 1200})
             await page.goto(f"file://{temp_html_path}")
             
-            # --- 强制等待字体加载 ---
+            # 等待字体加载完成
             await page.evaluate("document.fonts.ready")
             await page.wait_for_load_state("networkidle")
             
-            data_region = page.locator('.roco-merchant')
+            # --- 定位原版 HTML 的包裹容器 ---
+            data_region = page.locator('.merchant-page')
             await data_region.screenshot(path=screenshot_file, type="jpeg", quality=90)
             
             await browser.close()

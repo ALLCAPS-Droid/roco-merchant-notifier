@@ -5,15 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>远行商人</title>
     <style>
-/* 核心修复 1：使用 jsDelivr 全球加速 CDN 读取字体，解决跨域和加载失败 */
 @font-face {
     font-family: "fzlant";
-    src: url("https://cdn.jsdelivr.net/gh/Entropy-Increase-Team/astrbot_plugin_rocom/render/yuanxing-shangren/ttf/fzlant.D5FI9Et0.ttf");
+    src: url("{{_res_path}}ttf/fzlant.D5FI9Et0.ttf");
 }
 
 @font-face {
     font-family: "dundun";
-    src: url("https://cdn.jsdelivr.net/gh/Entropy-Increase-Team/astrbot_plugin_rocom/render/yuanxing-shangren/ttf/dundun.xHd_Ee5-.woff2");
+    src: url("{{_res_path}}ttf/dundun.xHd_Ee5-.woff2");
 }
 
 * {
@@ -262,29 +261,75 @@ body {
 }
 
 @media (max-width: 760px) {
-    .merchant-page { width: 100%; }
-    .content-container { padding: 10px 10px 14px; }
-    .header { flex-direction: column; gap: 10px; padding: 14px 16px; }
-    .header-side { min-width: 0; align-items: flex-start; }
-    .round-info { justify-content: flex-start; }
-    .title-badge, .title-badge img { width: 48px; height: 48px; }
-    .title-text { font-size: 30px; }
-    .product-card { grid-template-columns: 92px 1fr; min-height: 0; padding: 12px 14px; }
-    .product-image-container { width: 92px; height: 92px; }
-    .product-name { font-size: 24px; }
-    .product-side { grid-column: 1 / -1; justify-content: flex-start; padding-left: 106px; }
+    .merchant-page {
+        width: 100%;
+    }
+
+    .content-container {
+        padding: 10px 10px 14px;
+    }
+
+    .header {
+        flex-direction: column;
+        gap: 10px;
+        padding: 14px 16px;
+    }
+
+    .header-side {
+        min-width: 0;
+        align-items: flex-start;
+    }
+
+    .round-info {
+        justify-content: flex-start;
+    }
+
+    .title-badge,
+    .title-badge img {
+        width: 48px;
+        height: 48px;
+    }
+
+    .title-text {
+        font-size: 30px;
+    }
+
+    .product-card {
+        grid-template-columns: 92px 1fr;
+        min-height: 0;
+        padding: 12px 14px;
+    }
+
+    .product-image-container {
+        width: 92px;
+        height: 92px;
+    }
+
+    .product-name {
+        font-size: 24px;
+    }
+
+    .product-side {
+        grid-column: 1 / -1;
+        justify-content: flex-start;
+        padding-left: 106px;
+    }
 }
     </style>
 </head>
 <body>
-    <div class="merchant-page roco-merchant">
-        <div class="background" style="background-image: url('https://cdn.jsdelivr.net/gh/Entropy-Increase-Team/astrbot_plugin_rocom/render/yuanxing-shangren/img/bg.C8CUoi7I.jpg');"></div>
+    <div class="merchant-page">
+        <div class="background" style="background-image: url('{{background}}');"></div>
         <div class="content-container">
             <div class="header">
                 <div class="title-section">
                     <div class="title-main">
                         <div class="title-badge">
-                            <img src="https://cdn.jsdelivr.net/gh/Entropy-Increase-Team/astrbot_plugin_rocom/img/yuanxingshangren.png" alt="{{title}}">
+                            {% if titleIcon %}
+                            <img src="{{_res_path}}img/yuanxingshangren.png" alt="{{title}}">
+                            {% else %}
+                            远
+                            {% endif %}
                         </div>
                         <span class="title-text">{{title}}</span>
                     </div>

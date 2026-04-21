@@ -62,6 +62,8 @@ def process_data_for_template(data):
     for p in products:
         template_data["products"].append({
             "name": p.get("name", "未知"),
+            # 直接使用接口返回的网络图片地址！不需要本地资源！
+            "image": p.get("icon_url", ""), 
             "time_label": "本轮商品" 
         })
         

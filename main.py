@@ -11,7 +11,7 @@ IMGBB_KEY = os.environ.get("IMGBB_KEY")
 NOTIFYME_UUID = os.environ.get("NOTIFYME_UUID")
 BARK_KEY = os.environ.get("BARK_KEY")
 
-GAME_API_URL = "https://wegame.shallow.ink/api/v1/games/rocom/merchant/info?refresh=true"
+GAME_API_URL = "https://wegame.shallow.ink/api/v1/games/rocom/merchant/info"
 NOTIFYME_SERVER = "https://notifyme-server.wzn556.top/api/send"
 ASSETS_DIR = os.path.abspath("assets/yuanxing-shangren")
 HTML_TEMPLATE_FILE = "index.html"

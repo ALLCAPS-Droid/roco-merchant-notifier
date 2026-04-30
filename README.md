@@ -9,7 +9,7 @@
 * **极速图床托管**：集成 ImgBB API，自动将高质量截图转化为网络链接，减轻推送通道压力。
 * **双通道推送**：
   * 🍏 **iOS**: 通过 [Bark](https://github.com/Finb/Bark) 实现带大图的系统级通知。
-  * 🤖 **Android**: 通过 NotifyMe 实现高优先级通知推送。
+  * 🤖 **Android**: 通过 [NotifyMe](https://notifyme.wzn556.top/)  实现高优先级通知推送。
 * **防拥堵机制**：GitHub Actions 定时任务设置“提前 5 分钟”排队策略，有效对抗官方节点延迟。
 
 ---

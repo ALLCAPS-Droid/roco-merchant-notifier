@@ -1,6 +1,6 @@
 # 洛克王国世界：远行商人自动提醒助手 🛒
 
-![License](https://img.shields.io/github/license/ALLCAPS-Droid/Roco-Merchant)
+![License](https://img.shields.io/github/license/ALLCAPS-Droid/roco-merchant-notifier)
 ![Python](https://img.shields.io/badge/Python-3.10%2B-blue)
 ![Actions](https://img.shields.io/badge/GitHub-Actions-orange)
 
